@@ -2,6 +2,7 @@ package com.andreibelous.animationsample
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.text.TextPaint
 import android.util.AttributeSet
@@ -19,9 +20,12 @@ class DynamicView
     private var amplitude = 0f
     private var animateAmplitudeDiff = 0f
     private var maxRadius = 0f
-    private val paint = TextPaint().apply {
-        textSize = 80f
+    private var minRadius = 0f
+    private val paint = Paint().apply {
+        color = Color.argb(100, 255, 0, 0)
     }
+
+    var speed = Speed.HIGH
 
     init {
         setWillNotDraw(false)
@@ -30,49 +34,51 @@ class DynamicView
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
-        maxRadius = minOf(width / 2f, height / 2f)
+        maxRadius = minOf(width / 2f, height / 2f) * 0.9f
+        minRadius = maxRadius * 0.1f
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
         val delta = System.currentTimeMillis() - lastUpdateTime
-        doNextFrame(delta)
+        calcNextFrame(delta)
 
-        canvas.drawText(amplitude.toString(), width / 2f, height / 2f, paint)
+        val radius = minRadius + (maxRadius - minRadius) * amplitude / MAX_AMPLITUDE
+        canvas.drawCircle(width / 2f, height / 2f, radius, paint)
 
         lastUpdateTime = System.currentTimeMillis()
         invalidate()
     }
 
-    private fun doNextFrame(dt: Long) {
+    private fun calcNextFrame(dt: Long) {
         if (animateToAmplitude != amplitude) {
             amplitude += animateAmplitudeDiff * dt
             if (animateAmplitudeDiff > 0) {
-                if (amplitude > animateToAmplitude) {
-                    amplitude = animateToAmplitude
-                }
+                amplitude = amplitude.coerceAtMost(animateToAmplitude)
             } else {
-                if (amplitude < animateToAmplitude) {
-                    amplitude = animateToAmplitude
-                }
+                amplitude = amplitude.coerceAtLeast(animateToAmplitude)
             }
         }
     }
 
-    fun updateAmplitude(amplitude: Float) {
-        animateToAmplitude = amplitude
+    fun setAmplitude(value: Float) {
+        animateToAmplitude = value
+        val diff = animateToAmplitude - amplitude
         if (animateToAmplitude > amplitude) {
-            animateAmplitudeDiff =
-                (animateToAmplitude - amplitude) / (100f + 300f * ANIMATION_SPEED_WAVE_HUGE)
+            animateAmplitudeDiff = diff / (100f + 300f * speed.coef)
         } else {
-            animateAmplitudeDiff =
-                (animateToAmplitude - amplitude) / (100f + 500f * ANIMATION_SPEED_WAVE_HUGE)
+            animateAmplitudeDiff = diff / (100f + 500f * speed.coef)
         }
+    }
+
+    enum class Speed(val coef: Float) {
+        HIGH(0.35f),
+        SLOW(0.60f)
     }
 
     private companion object {
 
-        private const val ANIMATION_SPEED_WAVE_HUGE = 0.35f
+        private const val MAX_AMPLITUDE = 1200f
     }
 }
