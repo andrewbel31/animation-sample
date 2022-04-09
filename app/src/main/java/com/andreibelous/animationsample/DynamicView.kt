@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.View
 
@@ -42,7 +41,7 @@ class DynamicView
         super.onDraw(canvas)
 
         val delta = System.currentTimeMillis() - lastUpdateTime
-        calcNextFrame(delta)
+        calculateNextFrame(delta)
 
         val radius = minRadius + (maxRadius - minRadius) * amplitude / MAX_AMPLITUDE
         canvas.drawCircle(width / 2f, height / 2f, radius, paint)
@@ -51,7 +50,7 @@ class DynamicView
         invalidate()
     }
 
-    private fun calcNextFrame(dt: Long) {
+    private fun calculateNextFrame(dt: Long) {
         if (animateToAmplitude != amplitude) {
             amplitude += animateAmplitudeDiff * dt
             if (animateAmplitudeDiff > 0) {
@@ -66,15 +65,15 @@ class DynamicView
         animateToAmplitude = value
         val diff = animateToAmplitude - amplitude
         if (animateToAmplitude > amplitude) {
-            animateAmplitudeDiff = diff / (100f + 300f * speed.coef)
+            animateAmplitudeDiff = diff / (100f + 800f * speed.coef)
         } else {
-            animateAmplitudeDiff = diff / (100f + 500f * speed.coef)
+            animateAmplitudeDiff = diff / (100f + 1200f * speed.coef)
         }
     }
 
     enum class Speed(val coef: Float) {
         HIGH(0.35f),
-        SLOW(0.60f)
+        SLOW(0.50f)
     }
 
     private companion object {

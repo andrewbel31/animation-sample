@@ -24,18 +24,24 @@ class MainActivity : AppCompatActivity() {
 
         val button = findViewById<Button>(R.id.button)
 
+        dynamic1.setAmplitude(500f)
+        dynamic2.setAmplitude(500f)
+
         button.setOnClickListener {
 
             button.isEnabled = false
 
-            for (i in 0 until 200) {
+            for (i in 0 until 100) {
                 handler.postDelayed({
                     val ampl = Random.nextFloat() * 1200
                     dynamic1.setAmplitude(ampl)
                     dynamic2.setAmplitude(ampl)
 
-                    if (i == 199) {
+                    if (i == 99) {
                         button.isEnabled = true
+
+                        dynamic1.setAmplitude(500f)
+                        dynamic2.setAmplitude(500f)
                     }
                 }, i * 100L)
             }
