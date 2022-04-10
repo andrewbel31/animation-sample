@@ -17,7 +17,7 @@ class DynamicView
     private var lastUpdateTime: Long = System.currentTimeMillis()
     private var animateToAmplitude = 0f
     private var amplitude = 0f
-    private var animateAmplitudeDiff = 0f
+    private var deltaAmplitude = 0f
     private var maxRadius = 0f
     private var minRadius = 0f
     private val paint = Paint().apply {
@@ -52,8 +52,8 @@ class DynamicView
 
     private fun calculateNextFrame(dt: Long) {
         if (animateToAmplitude != amplitude) {
-            amplitude += animateAmplitudeDiff * dt
-            if (animateAmplitudeDiff > 0) {
+            amplitude += deltaAmplitude * dt
+            if (deltaAmplitude > 0) {
                 amplitude = amplitude.coerceAtMost(animateToAmplitude)
             } else {
                 amplitude = amplitude.coerceAtLeast(animateToAmplitude)
@@ -63,11 +63,11 @@ class DynamicView
 
     fun setAmplitude(value: Float) {
         animateToAmplitude = value
-        val diff = animateToAmplitude - amplitude
+        val diff = animateToAmplitude - amplitude // current amplitude stored in view
         if (animateToAmplitude > amplitude) {
-            animateAmplitudeDiff = diff / (100f + 800f * speed.coef)
+            deltaAmplitude = diff / (100f + 600f * speed.coef)
         } else {
-            animateAmplitudeDiff = diff / (100f + 1200f * speed.coef)
+            deltaAmplitude = diff / (100f + 1000f * speed.coef)
         }
     }
 
